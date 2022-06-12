@@ -14,6 +14,7 @@ type ProcessActionPanelListeners interface {
 	ProcessFrameListeners
 
 	StartProcessor()
+    MakeProcessorTick()
 	ResetProcessor()
 }
 
@@ -32,6 +33,34 @@ type MainWindow struct {
 
 func (m *MainWindow) SetReadyProcessesListText(text string) {
 	m.OutputProcessesNotebook.readyProcessesTextView.SetBuffer(CreateTextBuffer(text))
+}
+
+func (m *MainWindow) SetDispatchedProcessesListText(text string) {
+	m.OutputProcessesNotebook.dispatchedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+}
+
+func (m *MainWindow) SetProcessedProcessesListText(text string) {
+	m.OutputProcessesNotebook.processedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+}
+
+func (m *MainWindow) SetBlockedProcessesListText(text string) {
+	m.OutputProcessesNotebook.blockedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+}
+
+func (m *MainWindow) SetAwokenProcessesListText(text string) {
+	m.OutputProcessesNotebook.awokenProcessesTextView.SetBuffer(CreateTextBuffer(text))
+}
+
+func (m *MainWindow) SetResumedProcessesListText(text string) {
+	m.OutputProcessesNotebook.resumedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+}
+
+func (m *MainWindow) SetSuspendedProcessesListText(text string) {
+	m.OutputProcessesNotebook.suspendedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+}
+
+func (m *MainWindow) SetDestroyedProcessesListText(text string) {
+	m.OutputProcessesNotebook.destroyedProcessesTextView.SetBuffer(CreateTextBuffer(text))
 }
 
 func (m *MainWindow) ResetLogs() {

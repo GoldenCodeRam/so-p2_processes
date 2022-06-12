@@ -3,18 +3,18 @@ package object
 import "fmt"
 
 type ProcessState int
-
 const (
 	READY ProcessState = iota
 	RUNNING
 	BLOCKED
+    SUSPENDED
 )
 
 type Process struct {
 	Name      string
 	Time      int
 	IsBlocked bool
-	state     ProcessState
+	State     ProcessState
 	priority  int
 }
 

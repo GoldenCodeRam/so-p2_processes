@@ -1,49 +1,57 @@
 package model
 
 import (
-	"log"
-
 	"github.com/goldencoderam/so-p2_processes/src/object"
 )
+
+type ProcessorLogListeners interface {
+	UpdateListsText()
+}
 
 const ProcessingTime = 5
 
 type Processor struct {
 	ReadyProcessesList []*object.Process
-	RunningProcess     *object.Process
+	CurrentProcess     *object.Process
 
-	ReadyProcessesLog      string
 	DispatchedProcessesLog string
-    ProcessedProcessesLog  string
-    BlockedProcessesLog    string
-    AwokenProcessesLog     string
+	ProcessedProcessesLog  string
+	BlockedProcessesLog    string
+	AwokenProcessesLog     string
 
-    ResumedProcessesLog    string
-    SuspendedProcessesLog  string
-    DestroyedProcessesLog  string
+	ResumedProcessesLog   string
+	SuspendedProcessesLog string
+	DestroyedProcessesLog string
 }
 
 func (p *Processor) AddProcessToReadyList(process *object.Process) {
 	p.ReadyProcessesList = append(p.ReadyProcessesList, process)
-    p.ReadyProcessesLog += process.ToString()
 }
 
 func (p *Processor) Reset() {
-    p.ReadyProcessesList = make([]*object.Process, 0)
-    p.RunningProcess = nil
+	p.ReadyProcessesList = make([]*object.Process, 0)
+	p.CurrentProcess = nil
 
-    p.ReadyProcessesLog = ""
-    p.DispatchedProcessesLog = ""
-    p.ProcessedProcessesLog = ""
-    p.BlockedProcessesLog = ""
-    p.AwokenProcessesLog = ""
+	p.DispatchedProcessesLog = ""
+	p.ProcessedProcessesLog = ""
+	p.BlockedProcessesLog = ""
+	p.AwokenProcessesLog = ""
 
-    p.ResumedProcessesLog = ""
-    p.SuspendedProcessesLog = ""
-    p.DestroyedProcessesLog = ""
+	p.ResumedProcessesLog = ""
+	p.SuspendedProcessesLog = ""
+	p.DestroyedProcessesLog = ""
 }
 
-func (p *Processor) MakeTick() {
-    process := p.ReadyProcessesList[0]
-    log.Default().Println(process)
+func (p *Processor) MakeTick(listeners ProcessorLogListeners) {
+	if len(p.ReadyProcessesList) > 0 {
+		p.CurrentProcess = p.ReadyProcessesList[0]
+		p.ReadyProcessesList = p.ReadyProcessesList[1:]
+
+		switch p.CurrentProcess.State {
+		case object.READY:
+			p.DispatchedProcessesLog += "Dispatched: " + p.CurrentProcess.ToString()
+			listeners.UpdateListsText()
+			break
+		}
+	}
 }

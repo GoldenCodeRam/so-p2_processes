@@ -10,15 +10,37 @@ type viewController struct {
 	MainWindow *view.MainWindow
 }
 
+func (v *viewController) SaveDispatchedProcessLog() {
+    v.UpdateListsText()
+}
+
 func (v *viewController) AddProcessButtonListener(process *object.Process) {
 	GetMainControllerInstance().AddProcessToProcessor(process)
-	v.MainWindow.SetReadyProcessesListText(
-		GetMainControllerInstance().Processor.ReadyProcessesLog,
-	)
+    v.UpdateListsText()
+}
+
+func (v *viewController) UpdateListsText() {
+    controllerInstance := GetMainControllerInstance()
+    readyProcessesText := ""
+    for _, process := range controllerInstance.Processor.ReadyProcessesList {
+        readyProcessesText += process.ToString()
+    }
+
+    v.MainWindow.SetReadyProcessesListText(readyProcessesText)
+    v.MainWindow.SetDispatchedProcessesListText(controllerInstance.Processor.DispatchedProcessesLog)
+    v.MainWindow.SetProcessedProcessesListText(controllerInstance.Processor.ProcessedProcessesLog)
+    v.MainWindow.SetBlockedProcessesListText(controllerInstance.Processor.BlockedProcessesLog)
+    v.MainWindow.SetAwokenProcessesListText(controllerInstance.Processor.AwokenProcessesLog)
+    v.MainWindow.SetResumedProcessesListText(controllerInstance.Processor.ResumedProcessesLog)
+    v.MainWindow.SetSuspendedProcessesListText(controllerInstance.Processor.SuspendedProcessesLog)
+    v.MainWindow.SetDestroyedProcessesListText(controllerInstance.Processor.DestroyedProcessesLog)
 }
 
 func (v *viewController) StartProcessor() {
-	GetMainControllerInstance().Processor.MakeTick()
+}
+
+func (v *viewController) MakeProcessorTick() {
+	GetMainControllerInstance().Processor.MakeTick(v)
 }
 
 func (v *viewController) ResetProcessor() {
