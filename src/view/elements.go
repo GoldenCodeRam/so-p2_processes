@@ -8,15 +8,45 @@ func CreateFrame(label string) *gtk.Frame {
 		panic(err)
 	}
 
-	frame.SetMarginStart(SmallMargin)
-	frame.SetMarginEnd(SmallMargin)
+	frame.SetMarginStart(int(SmallMargin))
+	frame.SetMarginEnd(int(SmallMargin))
 
 	return frame
 }
 
+func CreateTextBuffer(text string) *gtk.TextBuffer {
+    textBuffer, err := gtk.TextBufferNew(nil)
+    if err != nil {
+        panic(err)
+    }
+
+    textBuffer.SetText(text)
+    return textBuffer
+}
+
+func CreateNotebook() *gtk.Notebook {
+	notebook, err := gtk.NotebookNew()
+	if err != nil {
+		panic(err)
+	}
+
+	notebook.SetScrollable(true)
+	return notebook
+}
+
+func CreateTextView() *gtk.TextView {
+	textView, err := gtk.TextViewNew()
+	if err != nil {
+		panic(err)
+	}
+
+	textView.SetEditable(false)
+	return textView
+}
+
 func CreateCheckButton(label string) *gtk.CheckButton {
 	var checkButton *gtk.CheckButton
-    var err error
+	var err error
 
 	if label == "" {
 		checkButton, err = gtk.CheckButtonNew()
@@ -32,12 +62,12 @@ func CreateCheckButton(label string) *gtk.CheckButton {
 }
 
 func CreateButton(label string) *gtk.Button {
-    button, err := gtk.ButtonNewWithLabel(label)
-    if err != nil {
-        panic(err)
-    }
+	button, err := gtk.ButtonNewWithLabel(label)
+	if err != nil {
+		panic(err)
+	}
 
-    return button
+	return button
 }
 
 func CreateToggleButton(label string) *gtk.ToggleButton {
@@ -55,8 +85,8 @@ func CreateLabel(text string) *gtk.Label {
 		panic(err)
 	}
 
-	label.SetMarginStart(SmallMargin)
-	label.SetMarginEnd(SmallMargin)
+	label.SetMarginStart(int(SmallMargin))
+	label.SetMarginEnd(int(SmallMargin))
 
 	return label
 }
@@ -69,18 +99,35 @@ func CreateEntry() *gtk.Entry {
 	return entry
 }
 
-func CreateBox(orientation gtk.Orientation) *gtk.Box {
-	box, err := gtk.BoxNew(orientation, SmallMargin)
+func CreateBox(orientation gtk.Orientation, margins MarginType) *gtk.Box {
+	box, err := gtk.BoxNew(orientation, int(margins))
 	if err != nil {
 		panic(err)
 	}
 
-	box.SetMarginStart(SmallMargin)
-	box.SetMarginEnd(SmallMargin)
-	box.SetMarginTop(SmallMargin)
-	box.SetMarginBottom(SmallMargin)
+	box.SetMarginStart(int(margins))
+	box.SetMarginEnd(int(margins))
+	box.SetMarginTop(int(margins))
+	box.SetMarginBottom(int(margins))
 
 	return box
+}
+
+func CreateHeaderBar() *gtk.HeaderBar {
+    header, err := gtk.HeaderBarNew()
+    if err != nil {
+        panic(err)
+    }
+
+    return header
+}
+
+func CreatePaned(orientation gtk.Orientation) *gtk.Paned {
+	paned, err := gtk.PanedNew(gtk.ORIENTATION_HORIZONTAL)
+	if err != nil {
+		panic(err)
+	}
+	return paned
 }
 
 func CreateGrid() *gtk.Grid {
@@ -89,10 +136,10 @@ func CreateGrid() *gtk.Grid {
 		panic(err)
 	}
 
-	grid.SetMarginStart(SmallMargin)
-	grid.SetMarginEnd(SmallMargin)
-	grid.SetMarginTop(SmallMargin)
-	grid.SetMarginBottom(SmallMargin)
+	grid.SetMarginStart(int(SmallMargin))
+	grid.SetMarginEnd(int(SmallMargin))
+	grid.SetMarginTop(int(SmallMargin))
+	grid.SetMarginBottom(int(SmallMargin))
 
 	grid.SetRowSpacing(uint(SmallMargin))
 	grid.SetColumnSpacing(uint(SmallMargin))
