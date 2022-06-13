@@ -8,7 +8,8 @@ import (
 )
 
 type ProcessFrame struct {
-	Frame *gtk.Frame
+	Frame                         *gtk.Frame
+	ProcessCommunicationComboText *gtk.ComboBoxText
 }
 
 func CreateProcessFrame(label string, listeners ProcessFrameListeners) *ProcessFrame {
@@ -45,9 +46,17 @@ func CreateProcessFrame(label string, listeners ProcessFrameListeners) *ProcessF
 				IsSuspendedAtRunning: processSuspendedAtRunning.GetActive(),
 				IsSuspendedAtBlocked: processSuspendedAtBlocked.GetActive(),
 				TimeRemaining:        time,
+                CommunicateWith:      processFrame.ProcessCommunicationComboText.GetActiveText(),
 			})
 		}
 	})
+
+	comboText, _ := gtk.ComboBoxTextNew()
+	comboText.SetEntryTextColumn(0)
+	comboText.AppendText("None")
+	comboText.SetActive(0)
+
+    processFrame.ProcessCommunicationComboText = comboText
 
 	grid.Attach(processNameLabel, 0, 0, 1, 1)
 	grid.Attach(processTimeLabel, 0, 1, 1, 1)
@@ -58,7 +67,11 @@ func CreateProcessFrame(label string, listeners ProcessFrameListeners) *ProcessF
 	grid.Attach(processSuspendedAtReady, 0, 4, 2, 1)
 	grid.Attach(processSuspendedAtRunning, 0, 5, 2, 1)
 	grid.Attach(processSuspendedAtBlocked, 0, 6, 2, 1)
-	grid.Attach(addProcessButton, 0, 7, 2, 1)
+
+	grid.Attach(CreateLabel("Communicate with"), 0, 7, 2, 1)
+	grid.Attach(comboText, 0, 8, 2, 1)
+
+	grid.Attach(addProcessButton, 0, 9, 2, 1)
 
 	box.SetCenterWidget(grid)
 	processFrame.Frame.Add(box)

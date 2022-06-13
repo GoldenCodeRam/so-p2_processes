@@ -9,12 +9,14 @@ import (
 const (
 	PROCESS_NAME = iota
 	PROCESS_TIME
+    PROCESS_DELETED
 	PROCESS_BLOCKED
 	PROCESS_SUSPENDED_AT_READY
 	PROCESS_SUSPENDED_AT_RUNNING
 	PROCESS_SUSPENDED_AT_BLOCKED
 	PROCESS_TIME_REMAINING
-    PROCESS_STATUS
+	PROCESS_STATUS
+	PROCESS_COMMUNICATE
 )
 
 type ProcessTreeView struct {
@@ -34,8 +36,8 @@ func (p *ProcessTreeView) AddRow(process *object.Process) {
 	iter := p.listStore.Append()
 	p.listStore.Set(
 		iter,
-		[]int{PROCESS_NAME, PROCESS_TIME, PROCESS_BLOCKED, PROCESS_SUSPENDED_AT_READY, PROCESS_SUSPENDED_AT_RUNNING, PROCESS_SUSPENDED_AT_BLOCKED, PROCESS_TIME_REMAINING, PROCESS_STATUS},
-		[]interface{}{process.Name, process.Time, process.IsBlocked, process.IsSuspendedAtReady, process.IsSuspendedAtRunning, process.IsSuspendedAtBlocked, process.TimeRemaining, process.State},
+		[]int{PROCESS_NAME, PROCESS_TIME, PROCESS_DELETED, PROCESS_BLOCKED, PROCESS_SUSPENDED_AT_READY, PROCESS_SUSPENDED_AT_RUNNING, PROCESS_SUSPENDED_AT_BLOCKED, PROCESS_TIME_REMAINING, PROCESS_STATUS, PROCESS_COMMUNICATE},
+		[]interface{}{process.Name, process.Time, process.IsDeleted, process.IsBlocked, process.IsSuspendedAtReady, process.IsSuspendedAtRunning, process.IsSuspendedAtBlocked, process.TimeRemaining, process.State, process.CommunicateWith},
 	)
 }
 
@@ -60,14 +62,16 @@ func setupTreeView() (*gtk.TreeView, *gtk.ListStore) {
 
 	treeView.AppendColumn(createColumn("Name", PROCESS_NAME))
 	treeView.AppendColumn(createColumn("Time", PROCESS_TIME))
+	treeView.AppendColumn(createColumn("Deleted", PROCESS_DELETED))
 	treeView.AppendColumn(createColumn("Blocked", PROCESS_BLOCKED))
 	treeView.AppendColumn(createColumn("Suspended at ready", PROCESS_SUSPENDED_AT_READY))
 	treeView.AppendColumn(createColumn("Suspended at running", PROCESS_SUSPENDED_AT_RUNNING))
 	treeView.AppendColumn(createColumn("Suspended at blocked", PROCESS_SUSPENDED_AT_BLOCKED))
 	treeView.AppendColumn(createColumn("Time remaining", PROCESS_TIME_REMAINING))
 	treeView.AppendColumn(createColumn("Status", PROCESS_STATUS))
+	treeView.AppendColumn(createColumn("Communicate with", PROCESS_COMMUNICATE))
 
-	listStore, _ := gtk.ListStoreNew(glib.TYPE_STRING, glib.TYPE_INT, glib.TYPE_BOOLEAN, glib.TYPE_BOOLEAN, glib.TYPE_BOOLEAN, glib.TYPE_BOOLEAN, glib.TYPE_INT, glib.TYPE_INT)
+	listStore, _ := gtk.ListStoreNew(glib.TYPE_STRING, glib.TYPE_INT, glib.TYPE_BOOLEAN, glib.TYPE_BOOLEAN, glib.TYPE_BOOLEAN, glib.TYPE_BOOLEAN, glib.TYPE_BOOLEAN, glib.TYPE_INT, glib.TYPE_INT, glib.TYPE_STRING)
 	treeView.SetModel(listStore)
 
 	return treeView, listStore

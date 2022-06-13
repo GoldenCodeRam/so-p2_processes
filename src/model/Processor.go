@@ -13,6 +13,8 @@ type ProcessorLogListeners interface {
 	SuspendedBlockedProcess(process *object.Process)
     DestroyedProcess(process *object.Process)
 	FinishedProcessing()
+
+    CommunicateWithProcess(process *object.Process)
 }
 
 const ProcessingTime = 5
@@ -51,6 +53,7 @@ func (p *Processor) MakeTick(listeners ProcessorLogListeners) {
 		} else {
 			p.CurrentProcess.State = object.RUNNING
 			p.CurrentProcess.Process(ProcessingTime)
+            listeners.CommunicateWithProcess(p.CurrentProcess)
 			listeners.DispatchProcess(p.CurrentProcess)
 		}
 		break

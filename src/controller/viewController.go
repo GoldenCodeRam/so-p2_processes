@@ -14,7 +14,7 @@ type viewController struct {
 
 func (v *viewController) DispatchProcess(process *object.Process) {
 	v.MainWindow.RemoveFromReadyProcessesList(process)
-    v.MainWindow.AddToDispatchedProcessesList(process)
+	v.MainWindow.AddToDispatchedProcessesList(process)
 }
 
 func (v *viewController) TimerRunoutProcess(process *object.Process) {
@@ -23,29 +23,41 @@ func (v *viewController) TimerRunoutProcess(process *object.Process) {
 }
 
 func (v *viewController) FinishedProcess(process *object.Process) {
-    v.MainWindow.AddToProcessedProcessesList(process)
+	v.MainWindow.AddToProcessedProcessesList(process)
 }
 
 func (v *viewController) BlockedProcess(process *object.Process) {
-    v.MainWindow.AddToBlockedProcessesList(process)
+	v.MainWindow.AddToBlockedProcessesList(process)
 }
 
 func (v *viewController) SuspendedReadyProcess(process *object.Process) {
-    v.MainWindow.RemoveFromReadyProcessesList(process)
-    v.MainWindow.AddToSuspendedReadyProcessesList(process)
+	v.MainWindow.RemoveFromReadyProcessesList(process)
+	v.MainWindow.AddToSuspendedReadyProcessesList(process)
 }
 
 func (v *viewController) SuspendedBlockedProcess(process *object.Process) {
-    v.MainWindow.AddToSuspendedBlockedProcessesList(process)
+	v.MainWindow.AddToSuspendedBlockedProcessesList(process)
 }
 
 func (v *viewController) DestroyedProcess(process *object.Process) {
-    v.MainWindow.AddToDestroyedProcessesList(process)
+	v.MainWindow.AddToDestroyedProcessesList(process)
 }
 
 func (v *viewController) FinishedProcessing() {
-    // TODO: This should be done soon
-    log.Default().Println("Finished")
+	// TODO: This should be done soon
+	log.Default().Println("Finished")
+	view.ShowInfoDialog("Finished")
+}
+
+func (v *viewController) CommunicateWithProcess(process *object.Process) {
+	if process.CommunicateWith != "" && process.CommunicateWith != "None" && process.CommunicateWith != process.Name {
+		for _, element := range GetMainControllerInstance().Processor.ReadyProcessesList {
+			if element.State == object.READY && element.Name == process.CommunicateWith{
+				v.MainWindow.LogCommunication(process.Name + " communicated with " + process.CommunicateWith)
+			}
+		}
+	}
+	process.CommunicateWith = "None"
 }
 
 func (v *viewController) AddProcessButtonListener(process *object.Process) {
@@ -53,11 +65,16 @@ func (v *viewController) AddProcessButtonListener(process *object.Process) {
 	v.MainWindow.AddToReadyProcessesList(process)
 }
 
+func (v *viewController) OnCommunicateWithProcessChanged(processName string) {
+	log.Default().Println(processName)
+}
+
 func (v *viewController) StartProcessor() {
-    controllerInstance := GetMainControllerInstance()
-    for len(controllerInstance.Processor.ReadyProcessesList) > 0 || controllerInstance.Processor.CurrentProcess != nil {
-        controllerInstance.Processor.MakeTick(v)
-    }
+	controllerInstance := GetMainControllerInstance()
+	for len(controllerInstance.Processor.ReadyProcessesList) > 0 || controllerInstance.Processor.CurrentProcess != nil {
+		controllerInstance.Processor.MakeTick(v)
+	}
+	controllerInstance.Processor.MakeTick(v)
 }
 
 func (v *viewController) MakeProcessorTick() {

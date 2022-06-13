@@ -13,3 +13,15 @@ func ShowErrorDialog(err error) {
     dialog.Run()
     dialog.Destroy()
 }
+
+func ShowInfoDialog(message string) {
+    dialog := gtk.MessageDialogNew(
+        nil,
+        gtk.DIALOG_DESTROY_WITH_PARENT,
+        gtk.MESSAGE_INFO,
+        gtk.BUTTONS_CLOSE,
+        message,
+    )
+    dialog.Run()
+    dialog.Destroy()
+}

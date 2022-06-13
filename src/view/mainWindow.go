@@ -14,7 +14,7 @@ type ProcessActionPanelListeners interface {
 	ProcessFrameListeners
 
 	StartProcessor()
-    MakeProcessorTick()
+	MakeProcessorTick()
 	ResetProcessor()
 }
 
@@ -23,61 +23,77 @@ type OutputProcessesNotebookListeners interface {
 
 type ProcessFrameListeners interface {
 	AddProcessButtonListener(process *object.Process)
+	OnCommunicateWithProcessChanged(processName string)
 }
 
 type MainWindow struct {
 	Window                  *gtk.Window
-	ProcessActionPanel      *gtk.Box
+	ProcessActionPanel      *ProcessActionPanel
 	OutputProcessesNotebook *OutputProcessesNotebook
+
+    communicationLogs       string
 }
 
 func (m *MainWindow) AddToReadyProcessesList(process *object.Process) {
-    m.OutputProcessesNotebook.readyProcessesTreeView.AddRow(process)
+	m.OutputProcessesNotebook.readyProcessesTreeView.AddRow(process)
+    m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.AppendText(process.Name)
 }
 
 func (m *MainWindow) RemoveFromReadyProcessesList(process *object.Process) {
-    m.OutputProcessesNotebook.readyProcessesTreeView.RemoveRow(process)
+	m.OutputProcessesNotebook.readyProcessesTreeView.RemoveRow(process)
 }
 
 func (m *MainWindow) AddToDispatchedProcessesList(process *object.Process) {
-    m.OutputProcessesNotebook.dispatchedProcessesTreeView.AddRow(process)
+	m.OutputProcessesNotebook.dispatchedProcessesTreeView.AddRow(process)
 }
 
 func (m *MainWindow) AddToProcessedProcessesList(process *object.Process) {
-    m.OutputProcessesNotebook.processedProcessesTreeView.AddRow(process)
+	m.OutputProcessesNotebook.processedProcessesTreeView.AddRow(process)
 }
 
 func (m *MainWindow) AddToBlockedProcessesList(process *object.Process) {
-    m.OutputProcessesNotebook.blockedProcessesTreeView.AddRow(process)
+	m.OutputProcessesNotebook.blockedProcessesTreeView.AddRow(process)
 }
 
 func (m *MainWindow) AddToSuspendedReadyProcessesList(process *object.Process) {
-    m.OutputProcessesNotebook.suspendedReadyProcessesTreeView.AddRow(process)
+	m.OutputProcessesNotebook.suspendedReadyProcessesTreeView.AddRow(process)
 }
 
 func (m *MainWindow) AddToSuspendedBlockedProcessesList(process *object.Process) {
-    m.OutputProcessesNotebook.suspendedBlockedProcessesTreeView.AddRow(process)
+	m.OutputProcessesNotebook.suspendedBlockedProcessesTreeView.AddRow(process)
 }
 
 func (m *MainWindow) AddToDestroyedProcessesList(process *object.Process) {
-    m.OutputProcessesNotebook.destroyedProcessesTreeView.AddRow(process)
+	m.OutputProcessesNotebook.destroyedProcessesTreeView.AddRow(process)
+}
+
+func (m *MainWindow) LogCommunication(log string) {
+    m.communicationLogs += log
+
+    m.OutputProcessesNotebook.communicationProcessesTextView.SetBuffer(
+        CreateTextBuffer(m.communicationLogs),
+    )
 }
 
 func (m *MainWindow) ResetLogs() {
-    m.OutputProcessesNotebook.ResetTextViews()
+	m.OutputProcessesNotebook.ResetTextViews()
+	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.RemoveAll()
+	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.AppendText("None")
+	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.SetActive(0)
+    m.OutputProcessesNotebook.communicationProcessesTextView.SetBuffer(nil)
 }
 
 func CreateMainWindow(listeners MainWindowListeners) *MainWindow {
 	mainWindow := MainWindow{
-		Window: CreateWindow(),
-        ProcessActionPanel: CreateProcessActionPanel(listeners),
-        OutputProcessesNotebook: CreateOutputProcessesNotebook(listeners),
+		Window:                  CreateWindow(),
+		ProcessActionPanel:      CreateProcessActionPanel(listeners),
+		OutputProcessesNotebook: CreateOutputProcessesNotebook(listeners),
 	}
-    paned := CreatePaned(gtk.ORIENTATION_HORIZONTAL)
+	paned := CreatePaned(gtk.ORIENTATION_HORIZONTAL)
 	mainWindow.Window.Add(paned)
 
 	// Add the label to the window.
-	paned.Pack1(mainWindow.ProcessActionPanel, true, false)
+	paned.Pack1(mainWindow.ProcessActionPanel.PanelBox, true, false)
 	paned.Pack2(mainWindow.OutputProcessesNotebook.Box, true, true)
 
 	return &mainWindow

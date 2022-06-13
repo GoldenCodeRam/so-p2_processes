@@ -27,6 +27,7 @@ type Process struct {
 	IsSuspendedAtBlocked bool
 	State                ProcessState
 	TimeRemaining        int
+    CommunicateWith      string
 	priority             int
 }
 

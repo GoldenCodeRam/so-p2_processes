@@ -16,6 +16,7 @@ type OutputProcessesNotebook struct {
 	suspendedReadyProcessesTreeView   *process.ProcessTreeView
 	suspendedBlockedProcessesTreeView *process.ProcessTreeView
 	destroyedProcessesTreeView        *process.ProcessTreeView
+	communicationProcessesTextView    *gtk.TextView
 }
 
 func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *OutputProcessesNotebook {
@@ -30,6 +31,7 @@ func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *
 		suspendedReadyProcessesTreeView:   process.NewTreeView(),
 		suspendedBlockedProcessesTreeView: process.NewTreeView(),
 		destroyedProcessesTreeView:        process.NewTreeView(),
+		communicationProcessesTextView:    CreateTextView(),
 	}
 
 	headerBar := CreateHeaderBar()
@@ -41,6 +43,7 @@ func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *
 	outputNotebook.Notebook.AppendPage(outputNotebook.suspendedReadyProcessesTreeView.TreeView, CreateLabel("Suspended-ready"))
 	outputNotebook.Notebook.AppendPage(outputNotebook.suspendedBlockedProcessesTreeView.TreeView, CreateLabel("Suspended-blocked"))
 	outputNotebook.Notebook.AppendPage(outputNotebook.destroyedProcessesTreeView.TreeView, CreateLabel("Destroyed"))
+    outputNotebook.Notebook.AppendPage(outputNotebook.communicationProcessesTextView, CreateLabel("Communication"))
 
 	headerBar.SetTitle("Output processes")
 	outputNotebook.Box.Add(headerBar)
