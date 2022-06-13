@@ -5,7 +5,14 @@ import (
 )
 
 type ProcessorLogListeners interface {
-	UpdateListsText()
+	DispatchProcess(process *object.Process)
+	TimerRunoutProcess(process *object.Process)
+	FinishedProcess(process *object.Process)
+	BlockedProcess(process *object.Process)
+	SuspendedReadyProcess(process *object.Process)
+	SuspendedBlockedProcess(process *object.Process)
+    DestroyedProcess(process *object.Process)
+	FinishedProcessing()
 }
 
 const ProcessingTime = 5
@@ -13,15 +20,6 @@ const ProcessingTime = 5
 type Processor struct {
 	ReadyProcessesList []*object.Process
 	CurrentProcess     *object.Process
-
-	DispatchedProcessesLog string
-	ProcessedProcessesLog  string
-	BlockedProcessesLog    string
-	AwokenProcessesLog     string
-
-	ResumedProcessesLog   string
-	SuspendedProcessesLog string
-	DestroyedProcessesLog string
 }
 
 func (p *Processor) AddProcessToReadyList(process *object.Process) {
@@ -31,27 +29,72 @@ func (p *Processor) AddProcessToReadyList(process *object.Process) {
 func (p *Processor) Reset() {
 	p.ReadyProcessesList = make([]*object.Process, 0)
 	p.CurrentProcess = nil
-
-	p.DispatchedProcessesLog = ""
-	p.ProcessedProcessesLog = ""
-	p.BlockedProcessesLog = ""
-	p.AwokenProcessesLog = ""
-
-	p.ResumedProcessesLog = ""
-	p.SuspendedProcessesLog = ""
-	p.DestroyedProcessesLog = ""
 }
 
 func (p *Processor) MakeTick(listeners ProcessorLogListeners) {
-	if len(p.ReadyProcessesList) > 0 {
-		p.CurrentProcess = p.ReadyProcessesList[0]
-		p.ReadyProcessesList = p.ReadyProcessesList[1:]
-
-		switch p.CurrentProcess.State {
-		case object.READY:
-			p.DispatchedProcessesLog += "Dispatched: " + p.CurrentProcess.ToString()
-			listeners.UpdateListsText()
-			break
+	if p.CurrentProcess == nil {
+		if len(p.ReadyProcessesList) > 0 {
+			p.CurrentProcess = p.ReadyProcessesList[0]
+			p.ReadyProcessesList = p.ReadyProcessesList[1:]
+		} else {
+			listeners.FinishedProcessing()
+			return
 		}
 	}
+
+	switch p.CurrentProcess.State {
+	case object.READY:
+		if p.CurrentProcess.IsSuspendedAtReady {
+			p.CurrentProcess.State = object.SUSPENDED_READY
+            p.CurrentProcess.IsSuspendedAtReady = false
+			listeners.SuspendedReadyProcess(p.CurrentProcess)
+		} else {
+			p.CurrentProcess.State = object.RUNNING
+			p.CurrentProcess.Process(ProcessingTime)
+			listeners.DispatchProcess(p.CurrentProcess)
+		}
+		break
+	case object.SUSPENDED_READY:
+		p.CurrentProcess.State = object.READY
+		listeners.TimerRunoutProcess(p.CurrentProcess)
+		p.CurrentProcess = nil
+		break
+	case object.RUNNING:
+		if p.CurrentProcess.HasFinished() {
+			p.CurrentProcess.State = object.FINISHED
+			listeners.FinishedProcess(p.CurrentProcess)
+			p.CurrentProcess = nil
+		} else if p.CurrentProcess.IsDeleted {
+			p.CurrentProcess.State = object.DESTROYED
+			listeners.DestroyedProcess(p.CurrentProcess)
+			p.CurrentProcess = nil
+		} else if p.CurrentProcess.IsBlocked {
+			p.CurrentProcess.State = object.BLOCKED
+			listeners.BlockedProcess(p.CurrentProcess)
+		} else if p.CurrentProcess.IsSuspendedAtRunning {
+			p.CurrentProcess.State = object.SUSPENDED_READY
+			listeners.SuspendedReadyProcess(p.CurrentProcess)
+		} else {
+			p.CurrentProcess.State = object.READY
+			listeners.TimerRunoutProcess(p.CurrentProcess)
+			p.CurrentProcess = nil
+		}
+		break
+	case object.BLOCKED:
+		if p.CurrentProcess.IsSuspendedAtBlocked {
+			p.CurrentProcess.State = object.SUSPENDED_BLOCKED
+			listeners.SuspendedBlockedProcess(p.CurrentProcess)
+		} else {
+			p.CurrentProcess.State = object.READY
+			listeners.TimerRunoutProcess(p.CurrentProcess)
+			p.CurrentProcess = nil
+		}
+		break
+	case object.SUSPENDED_BLOCKED:
+		p.CurrentProcess.State = object.READY
+		listeners.TimerRunoutProcess(p.CurrentProcess)
+		p.CurrentProcess = nil
+		break
+	}
+
 }

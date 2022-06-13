@@ -1,19 +1,21 @@
 package view
 
-import "github.com/gotk3/gotk3/gtk"
+import (
+	"github.com/goldencoderam/so-p2_processes/src/view/process"
+	"github.com/gotk3/gotk3/gtk"
+)
 
 type OutputProcessesNotebook struct {
 	Box      *gtk.Box
 	Notebook *gtk.Notebook
 
-	readyProcessesTextView      *gtk.TextView
-	dispatchedProcessesTextView *gtk.TextView
-	processedProcessesTextView  *gtk.TextView
-	blockedProcessesTextView    *gtk.TextView
-	awokenProcessesTextView     *gtk.TextView
-	resumedProcessesTextView    *gtk.TextView
-	suspendedProcessesTextView  *gtk.TextView
-	destroyedProcessesTextView  *gtk.TextView
+	readyProcessesTreeView            *process.ProcessTreeView
+	dispatchedProcessesTreeView       *process.ProcessTreeView
+	processedProcessesTreeView        *process.ProcessTreeView
+	blockedProcessesTreeView          *process.ProcessTreeView
+	suspendedReadyProcessesTreeView   *process.ProcessTreeView
+	suspendedBlockedProcessesTreeView *process.ProcessTreeView
+	destroyedProcessesTreeView        *process.ProcessTreeView
 }
 
 func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *OutputProcessesNotebook {
@@ -21,26 +23,24 @@ func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *
 		Box:      CreateBox(gtk.ORIENTATION_VERTICAL, ZeroMargin),
 		Notebook: CreateNotebook(),
 
-		readyProcessesTextView:      CreateTextView(),
-		dispatchedProcessesTextView: CreateTextView(),
-		processedProcessesTextView:  CreateTextView(),
-		blockedProcessesTextView:    CreateTextView(),
-		awokenProcessesTextView:     CreateTextView(),
-		resumedProcessesTextView:    CreateTextView(),
-		suspendedProcessesTextView:  CreateTextView(),
-		destroyedProcessesTextView:  CreateTextView(),
+		readyProcessesTreeView:            process.NewTreeView(),
+		dispatchedProcessesTreeView:       process.NewTreeView(),
+		processedProcessesTreeView:        process.NewTreeView(),
+		blockedProcessesTreeView:          process.NewTreeView(),
+		suspendedReadyProcessesTreeView:   process.NewTreeView(),
+		suspendedBlockedProcessesTreeView: process.NewTreeView(),
+		destroyedProcessesTreeView:        process.NewTreeView(),
 	}
 
 	headerBar := CreateHeaderBar()
 
-	outputNotebook.Notebook.AppendPage(outputNotebook.readyProcessesTextView, CreateLabel("Ready"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.dispatchedProcessesTextView, CreateLabel("Dispatched"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.processedProcessesTextView, CreateLabel("Processed"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.blockedProcessesTextView, CreateLabel("Blocked"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.awokenProcessesTextView, CreateLabel("Awoken"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.resumedProcessesTextView, CreateLabel("Resumed"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.suspendedProcessesTextView, CreateLabel("Suspended"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.destroyedProcessesTextView, CreateLabel("Destroyed"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.readyProcessesTreeView.TreeView, CreateLabel("Ready"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.dispatchedProcessesTreeView.TreeView, CreateLabel("Dispatched"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.processedProcessesTreeView.TreeView, CreateLabel("Processed"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.blockedProcessesTreeView.TreeView, CreateLabel("Blocked"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.suspendedReadyProcessesTreeView.TreeView, CreateLabel("Suspended-ready"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.suspendedBlockedProcessesTreeView.TreeView, CreateLabel("Suspended-blocked"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.destroyedProcessesTreeView.TreeView, CreateLabel("Destroyed"))
 
 	headerBar.SetTitle("Output processes")
 	outputNotebook.Box.Add(headerBar)
@@ -50,12 +50,11 @@ func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *
 }
 
 func (o *OutputProcessesNotebook) ResetTextViews() {
-    o.readyProcessesTextView.SetBuffer(nil)
-    o.dispatchedProcessesTextView.SetBuffer(nil)
-    o.processedProcessesTextView.SetBuffer(nil)
-    o.blockedProcessesTextView.SetBuffer(nil)
-    o.awokenProcessesTextView.SetBuffer(nil)
-    o.resumedProcessesTextView.SetBuffer(nil)
-    o.suspendedProcessesTextView.SetBuffer(nil)
-    o.destroyedProcessesTextView.SetBuffer(nil)
+	o.readyProcessesTreeView.Clear()
+	o.dispatchedProcessesTreeView.Clear()
+	o.processedProcessesTreeView.Clear()
+	o.blockedProcessesTreeView.Clear()
+	o.suspendedReadyProcessesTreeView.Clear()
+	o.suspendedBlockedProcessesTreeView.Clear()
+	o.destroyedProcessesTreeView.Clear()
 }

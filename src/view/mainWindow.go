@@ -31,36 +31,36 @@ type MainWindow struct {
 	OutputProcessesNotebook *OutputProcessesNotebook
 }
 
-func (m *MainWindow) SetReadyProcessesListText(text string) {
-	m.OutputProcessesNotebook.readyProcessesTextView.SetBuffer(CreateTextBuffer(text))
+func (m *MainWindow) AddToReadyProcessesList(process *object.Process) {
+    m.OutputProcessesNotebook.readyProcessesTreeView.AddRow(process)
 }
 
-func (m *MainWindow) SetDispatchedProcessesListText(text string) {
-	m.OutputProcessesNotebook.dispatchedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+func (m *MainWindow) RemoveFromReadyProcessesList(process *object.Process) {
+    m.OutputProcessesNotebook.readyProcessesTreeView.RemoveRow(process)
 }
 
-func (m *MainWindow) SetProcessedProcessesListText(text string) {
-	m.OutputProcessesNotebook.processedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+func (m *MainWindow) AddToDispatchedProcessesList(process *object.Process) {
+    m.OutputProcessesNotebook.dispatchedProcessesTreeView.AddRow(process)
 }
 
-func (m *MainWindow) SetBlockedProcessesListText(text string) {
-	m.OutputProcessesNotebook.blockedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+func (m *MainWindow) AddToProcessedProcessesList(process *object.Process) {
+    m.OutputProcessesNotebook.processedProcessesTreeView.AddRow(process)
 }
 
-func (m *MainWindow) SetAwokenProcessesListText(text string) {
-	m.OutputProcessesNotebook.awokenProcessesTextView.SetBuffer(CreateTextBuffer(text))
+func (m *MainWindow) AddToBlockedProcessesList(process *object.Process) {
+    m.OutputProcessesNotebook.blockedProcessesTreeView.AddRow(process)
 }
 
-func (m *MainWindow) SetResumedProcessesListText(text string) {
-	m.OutputProcessesNotebook.resumedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+func (m *MainWindow) AddToSuspendedReadyProcessesList(process *object.Process) {
+    m.OutputProcessesNotebook.suspendedReadyProcessesTreeView.AddRow(process)
 }
 
-func (m *MainWindow) SetSuspendedProcessesListText(text string) {
-	m.OutputProcessesNotebook.suspendedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+func (m *MainWindow) AddToSuspendedBlockedProcessesList(process *object.Process) {
+    m.OutputProcessesNotebook.suspendedBlockedProcessesTreeView.AddRow(process)
 }
 
-func (m *MainWindow) SetDestroyedProcessesListText(text string) {
-	m.OutputProcessesNotebook.destroyedProcessesTextView.SetBuffer(CreateTextBuffer(text))
+func (m *MainWindow) AddToDestroyedProcessesList(process *object.Process) {
+    m.OutputProcessesNotebook.destroyedProcessesTreeView.AddRow(process)
 }
 
 func (m *MainWindow) ResetLogs() {

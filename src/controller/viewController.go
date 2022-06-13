@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"log"
+
 	"github.com/goldencoderam/so-p2_processes/src/object"
 	"github.com/goldencoderam/so-p2_processes/src/view"
 	"github.com/gotk3/gotk3/gtk"
@@ -10,33 +12,52 @@ type viewController struct {
 	MainWindow *view.MainWindow
 }
 
-func (v *viewController) SaveDispatchedProcessLog() {
-    v.UpdateListsText()
+func (v *viewController) DispatchProcess(process *object.Process) {
+	v.MainWindow.RemoveFromReadyProcessesList(process)
+    v.MainWindow.AddToDispatchedProcessesList(process)
+}
+
+func (v *viewController) TimerRunoutProcess(process *object.Process) {
+	GetMainControllerInstance().AddProcessToProcessor(process)
+	v.MainWindow.AddToReadyProcessesList(process)
+}
+
+func (v *viewController) FinishedProcess(process *object.Process) {
+    v.MainWindow.AddToProcessedProcessesList(process)
+}
+
+func (v *viewController) BlockedProcess(process *object.Process) {
+    v.MainWindow.AddToBlockedProcessesList(process)
+}
+
+func (v *viewController) SuspendedReadyProcess(process *object.Process) {
+    v.MainWindow.RemoveFromReadyProcessesList(process)
+    v.MainWindow.AddToSuspendedReadyProcessesList(process)
+}
+
+func (v *viewController) SuspendedBlockedProcess(process *object.Process) {
+    v.MainWindow.AddToSuspendedBlockedProcessesList(process)
+}
+
+func (v *viewController) DestroyedProcess(process *object.Process) {
+    v.MainWindow.AddToDestroyedProcessesList(process)
+}
+
+func (v *viewController) FinishedProcessing() {
+    // TODO: This should be done soon
+    log.Default().Println("Finished")
 }
 
 func (v *viewController) AddProcessButtonListener(process *object.Process) {
 	GetMainControllerInstance().AddProcessToProcessor(process)
-    v.UpdateListsText()
-}
-
-func (v *viewController) UpdateListsText() {
-    controllerInstance := GetMainControllerInstance()
-    readyProcessesText := ""
-    for _, process := range controllerInstance.Processor.ReadyProcessesList {
-        readyProcessesText += process.ToString()
-    }
-
-    v.MainWindow.SetReadyProcessesListText(readyProcessesText)
-    v.MainWindow.SetDispatchedProcessesListText(controllerInstance.Processor.DispatchedProcessesLog)
-    v.MainWindow.SetProcessedProcessesListText(controllerInstance.Processor.ProcessedProcessesLog)
-    v.MainWindow.SetBlockedProcessesListText(controllerInstance.Processor.BlockedProcessesLog)
-    v.MainWindow.SetAwokenProcessesListText(controllerInstance.Processor.AwokenProcessesLog)
-    v.MainWindow.SetResumedProcessesListText(controllerInstance.Processor.ResumedProcessesLog)
-    v.MainWindow.SetSuspendedProcessesListText(controllerInstance.Processor.SuspendedProcessesLog)
-    v.MainWindow.SetDestroyedProcessesListText(controllerInstance.Processor.DestroyedProcessesLog)
+	v.MainWindow.AddToReadyProcessesList(process)
 }
 
 func (v *viewController) StartProcessor() {
+    controllerInstance := GetMainControllerInstance()
+    for len(controllerInstance.Processor.ReadyProcessesList) > 0 || controllerInstance.Processor.CurrentProcess != nil {
+        controllerInstance.Processor.MakeTick(v)
+    }
 }
 
 func (v *viewController) MakeProcessorTick() {
