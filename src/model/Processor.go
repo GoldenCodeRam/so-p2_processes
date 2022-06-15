@@ -1,20 +1,33 @@
 package model
 
 import (
+	"sort"
 	"github.com/goldencoderam/so-p2_processes/src/object"
 )
 
 type ProcessorLogListeners interface {
+    // Ready - Running
 	DispatchProcess(process *object.Process)
+    // Ready - SuspendedReady
+    SuspendReadyProcess(process *object.Process)
+    // Running - Ready
 	TimerRunoutProcess(process *object.Process)
+    // Running - Blocked
+	BlockProcess(process *object.Process)
+    // Running - SuspendedReady
+    SuspendRunningProcess(process *object.Process)
+    // Running - Finished
 	FinishedProcess(process *object.Process)
-	BlockedProcess(process *object.Process)
-	SuspendedReadyProcess(process *object.Process)
-	SuspendedBlockedProcess(process *object.Process)
-    DestroyedProcess(process *object.Process)
-	FinishedProcessing()
-
-    CommunicateWithProcess(process *object.Process)
+    // Blocked - Ready
+    IOBlockedCompletionProcess(process *object.Process)
+    // Blocked - SuspendedBlocked
+    SuspendBlockedProcess(process *object.Process)
+    // SuspendedBlocked - Blocked
+    ResumeSuspendedBlockedProcess(process *object.Process)
+    // SuspendedBlocked - SuspendedReady
+    IOSuspendedBlockedCompletionProcess(process *object.Process)
+    // SuspendedReady - Ready
+    ResumeSuspendedReadyProcess(process *object.Process)
 }
 
 const ProcessingTime = 5
@@ -24,8 +37,14 @@ type Processor struct {
 	CurrentProcess     *object.Process
 }
 
-func (p *Processor) AddProcessToReadyList(process *object.Process) {
+func (p *Processor) AddProcessToReadyList(process *object.Process) bool {
+    for _, p := range p.ReadyProcessesList {
+        if p.Name == process.Name {
+            return false
+        }
+    }
 	p.ReadyProcessesList = append(p.ReadyProcessesList, process)
+    return true
 }
 
 func (p *Processor) Reset() {
@@ -36,6 +55,9 @@ func (p *Processor) Reset() {
 func (p *Processor) MakeTick(listeners ProcessorLogListeners) {
 	if p.CurrentProcess == nil {
 		if len(p.ReadyProcessesList) > 0 {
+            sort.SliceStable(p.ReadyProcessesList, func(i, j int) bool {
+                return p.ReadyProcessesList[i].Priority > p.ReadyProcessesList[j].Priority
+            })
 			p.CurrentProcess = p.ReadyProcessesList[0]
 			p.ReadyProcessesList = p.ReadyProcessesList[1:]
 		} else {

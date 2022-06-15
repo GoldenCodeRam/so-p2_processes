@@ -30,13 +30,11 @@ type MainWindow struct {
 	Window                  *gtk.Window
 	ProcessActionPanel      *ProcessActionPanel
 	OutputProcessesNotebook *OutputProcessesNotebook
-
-    communicationLogs       string
 }
 
 func (m *MainWindow) AddToReadyProcessesList(process *object.Process) {
 	m.OutputProcessesNotebook.readyProcessesTreeView.AddRow(process)
-    m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.AppendText(process.Name)
+	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.AppendText(process.Name)
 }
 
 func (m *MainWindow) RemoveFromReadyProcessesList(process *object.Process) {
@@ -67,20 +65,12 @@ func (m *MainWindow) AddToDestroyedProcessesList(process *object.Process) {
 	m.OutputProcessesNotebook.destroyedProcessesTreeView.AddRow(process)
 }
 
-func (m *MainWindow) LogCommunication(log string) {
-    m.communicationLogs += log
-
-    m.OutputProcessesNotebook.communicationProcessesTextView.SetBuffer(
-        CreateTextBuffer(m.communicationLogs),
-    )
-}
-
 func (m *MainWindow) ResetLogs() {
 	m.OutputProcessesNotebook.ResetTextViews()
 	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.RemoveAll()
 	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.AppendText("None")
 	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.SetActive(0)
-    m.OutputProcessesNotebook.communicationProcessesTextView.SetBuffer(nil)
+	m.OutputProcessesNotebook.communicationProcessesTextView.SetBuffer(CreateTextBuffer(""))
 }
 
 func CreateMainWindow(listeners MainWindowListeners) *MainWindow {

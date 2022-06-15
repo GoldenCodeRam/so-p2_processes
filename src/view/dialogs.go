@@ -2,7 +2,7 @@ package view
 
 import "github.com/gotk3/gotk3/gtk"
 
-func ShowErrorDialog(err error) {
+func ShowErrorDialog(err error) error {
 	dialog := gtk.MessageDialogNew(
         nil,
         gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -12,6 +12,7 @@ func ShowErrorDialog(err error) {
     )
     dialog.Run()
     dialog.Destroy()
+    return error
 }
 
 func ShowInfoDialog(message string) {

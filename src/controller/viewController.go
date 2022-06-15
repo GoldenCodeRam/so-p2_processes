@@ -8,8 +8,9 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-type viewController struct {
+type mainController struct {
 	MainWindow *view.MainWindow
+	Processor  *model.Processor
 }
 
 func (v *viewController) DispatchProcess(process *object.Process) {
@@ -52,7 +53,7 @@ func (v *viewController) FinishedProcessing() {
 func (v *viewController) CommunicateWithProcess(process *object.Process) {
 	if process.CommunicateWith != "" && process.CommunicateWith != "None" && process.CommunicateWith != process.Name {
 		for _, element := range GetMainControllerInstance().Processor.ReadyProcessesList {
-			if element.State == object.READY && element.Name == process.CommunicateWith{
+			if element.State == object.READY && element.Name == process.CommunicateWith {
 				v.MainWindow.LogCommunication(process.Name + " communicated with " + process.CommunicateWith)
 			}
 		}
@@ -61,8 +62,9 @@ func (v *viewController) CommunicateWithProcess(process *object.Process) {
 }
 
 func (v *viewController) AddProcessButtonListener(process *object.Process) {
-	GetMainControllerInstance().AddProcessToProcessor(process)
-	v.MainWindow.AddToReadyProcessesList(process)
+	if GetMainControllerInstance().AddProcessToProcessor(process) {
+		v.MainWindow.AddToReadyProcessesList(process)
+	}
 }
 
 func (v *viewController) OnCommunicateWithProcessChanged(processName string) {

@@ -14,21 +14,17 @@ const (
 	SUSPENDED_BLOCKED
 	SUSPENDED_READY
 	FINISHED
-    DESTROYED
 )
 
 type Process struct {
 	Name                 string
 	Time                 int
-    IsDeleted            bool
 	IsBlocked            bool
-	IsSuspendedAtReady   bool
 	IsSuspendedAtRunning bool
 	IsSuspendedAtBlocked bool
+
 	State                ProcessState
 	TimeRemaining        int
-    CommunicateWith      string
-	priority             int
 }
 
 func (p *Process) Process(time int) {
