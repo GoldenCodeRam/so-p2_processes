@@ -29,7 +29,7 @@ type ProcessFrameListeners interface {
 type MainWindow struct {
 	Window                  *gtk.Window
 	ProcessActionPanel      *ProcessActionPanel
-	OutputProcessesNotebook *OutputProcessesNotebook
+	OutputProcessesNotebook *LogProcessesNotebook
 }
 
 func (m *MainWindow) AddToReadyProcessesList(process *object.Process) {

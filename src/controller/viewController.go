@@ -2,15 +2,36 @@ package controller
 
 import (
 	"log"
+	"sync"
 
+	"github.com/goldencoderam/so-p2_processes/src/model"
 	"github.com/goldencoderam/so-p2_processes/src/object"
 	"github.com/goldencoderam/so-p2_processes/src/view"
 	"github.com/gotk3/gotk3/gtk"
 )
 
-type mainController struct {
+type viewController struct {
 	MainWindow *view.MainWindow
 	Processor  *model.Processor
+}
+
+var viewControllerInstance *viewController
+
+var lock = &sync.Mutex{}
+
+func GetViewControllerInstance() *viewController {
+	if viewControllerInstance == nil {
+		lock.Lock()
+		defer lock.Unlock()
+		if viewControllerInstance == nil {
+			viewControllerInstance = &viewController{}
+            viewControllerInstance.Processor = &model.Processor{
+                LogListeners: viewControllerInstance,
+            }
+			generateMainWindow()
+		}
+	}
+	return viewControllerInstance
 }
 
 func (v *viewController) DispatchProcess(process *object.Process) {
@@ -18,8 +39,7 @@ func (v *viewController) DispatchProcess(process *object.Process) {
 	v.MainWindow.AddToDispatchedProcessesList(process)
 }
 
-func (v *viewController) TimerRunoutProcess(process *object.Process) {
-	GetMainControllerInstance().AddProcessToProcessor(process)
+func (v *viewController) Timeout(process *object.Process) {
 	v.MainWindow.AddToReadyProcessesList(process)
 }
 
@@ -72,34 +92,19 @@ func (v *viewController) OnCommunicateWithProcessChanged(processName string) {
 }
 
 func (v *viewController) StartProcessor() {
-	controllerInstance := GetMainControllerInstance()
-	for len(controllerInstance.Processor.ReadyProcessesList) > 0 || controllerInstance.Processor.CurrentProcess != nil {
-		controllerInstance.Processor.MakeTick(v)
+	for len(v.Processor.ReadyProcessesList) > 0 || v.Processor.CurrentProcess != nil {
+		v.Processor.MakeTick(v)
 	}
-	controllerInstance.Processor.MakeTick(v)
+	v.Processor.MakeTick(v)
 }
 
 func (v *viewController) MakeProcessorTick() {
-	GetMainControllerInstance().Processor.MakeTick(v)
+	v.Processor.MakeTick(v)
 }
 
 func (v *viewController) ResetProcessor() {
-	GetMainControllerInstance().Processor.Reset()
+	v.Processor.Reset()
 	v.MainWindow.ResetLogs()
-}
-
-var viewControllerInstance *viewController
-
-func GetViewControllerInstance() *viewController {
-	if viewControllerInstance == nil {
-		lock.Lock()
-		defer lock.Unlock()
-		if viewControllerInstance == nil {
-			viewControllerInstance = &viewController{}
-			generateMainWindow()
-		}
-	}
-	return viewControllerInstance
 }
 
 func generateMainWindow() {

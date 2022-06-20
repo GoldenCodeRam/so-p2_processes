@@ -11,28 +11,31 @@ const (
 	READY ProcessState = iota
 	RUNNING
 	BLOCKED
+    // When it was suspended already
+    BLOCKED_NOT_SUSPENDED
 	SUSPENDED_BLOCKED
 	SUSPENDED_READY
 	FINISHED
 )
 
 type Process struct {
-	Name                 string
-	Time                 int
-	IsBlocked            bool
-	IsSuspendedAtRunning bool
-	IsSuspendedAtBlocked bool
+	Name                      string
+	Time                      int
+	IsBlocked                 bool
+	IsSuspendedAtRunning      bool
+	IsSuspendedAtBlocked      bool
+	IsSuspendedAtIOCompletion bool
+	State                     ProcessState
 
-	State                ProcessState
-	TimeRemaining        int
+	timeRemaining int
 }
 
 func (p *Process) Process(time int) {
-	p.TimeRemaining = int(math.Max(0.0, float64(p.TimeRemaining-time)))
+	p.timeRemaining = int(math.Max(0.0, float64(p.timeRemaining-time)))
 }
 
 func (p *Process) HasFinished() bool {
-	return p.TimeRemaining == 0
+	return p.timeRemaining == 0
 }
 
 func (p *Process) ToString() string {

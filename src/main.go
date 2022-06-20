@@ -5,7 +5,6 @@ import (
 )
 
 func main() {
-    controller.GetMainControllerInstance()
     controller.GetViewControllerInstance()
 }
 

@@ -5,7 +5,7 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-type OutputProcessesNotebook struct {
+type LogProcessesNotebook struct {
 	Box      *gtk.Box
 	Notebook *gtk.Notebook
 
@@ -19,8 +19,8 @@ type OutputProcessesNotebook struct {
 	communicationProcessesTextView    *gtk.TextView
 }
 
-func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *OutputProcessesNotebook {
-	outputNotebook := OutputProcessesNotebook{
+func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *LogProcessesNotebook {
+	outputNotebook := LogProcessesNotebook{
 		Box:      CreateBox(gtk.ORIENTATION_VERTICAL, ZeroMargin),
 		Notebook: CreateNotebook(),
 
@@ -52,7 +52,7 @@ func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *
 	return &outputNotebook
 }
 
-func (o *OutputProcessesNotebook) ResetTextViews() {
+func (o *LogProcessesNotebook) ResetTextViews() {
 	o.readyProcessesTreeView.Clear()
 	o.dispatchedProcessesTreeView.Clear()
 	o.processedProcessesTreeView.Clear()
