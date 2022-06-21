@@ -12,7 +12,7 @@ func ShowErrorDialog(err error) error {
     )
     dialog.Run()
     dialog.Destroy()
-    return error
+    return err
 }
 
 func ShowInfoDialog(message string) {

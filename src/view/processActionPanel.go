@@ -11,13 +11,13 @@ func CreateProcessActionPanel(listeners ProcessActionPanelListeners) *ProcessAct
 	actionPanelBox := CreateBox(gtk.ORIENTATION_VERTICAL, SmallMargin)
 	centerBox := CreateBox(gtk.ORIENTATION_VERTICAL, ZeroMargin)
 
-	startSimulationButton := CreateButton("Start processor")
-	makeProcessorTickButton := CreateButton("Tick processor")
-	resetSimulationButton := CreateButton("Reset processor")
+	startSimulationButton := CreateButton("Iniciar procesador")
+	makeProcessorTickButton := CreateButton("Realizar iteración")
+	resetSimulationButton := CreateButton("Reiniciar procesador")
 
 	processActionPanel := ProcessActionPanel{
 		PanelBox:           actionPanelBox,
-		CreateProcessFrame: CreateProcessFrame("Create process", listeners),
+		CreateProcessFrame: CreateProcessFrame("Crear proceso", listeners),
 	}
 
 	centerBox.SetSpacing(int(MediumMargin))

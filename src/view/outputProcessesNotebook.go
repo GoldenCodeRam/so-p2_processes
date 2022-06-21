@@ -9,14 +9,25 @@ type LogProcessesNotebook struct {
 	Box      *gtk.Box
 	Notebook *gtk.Notebook
 
+	// States
 	readyProcessesTreeView            *process.ProcessTreeView
-	dispatchedProcessesTreeView       *process.ProcessTreeView
-	processedProcessesTreeView        *process.ProcessTreeView
+	runningProcessesTreeView          *process.ProcessTreeView
 	blockedProcessesTreeView          *process.ProcessTreeView
-	suspendedReadyProcessesTreeView   *process.ProcessTreeView
 	suspendedBlockedProcessesTreeView *process.ProcessTreeView
-	destroyedProcessesTreeView        *process.ProcessTreeView
-	communicationProcessesTextView    *gtk.TextView
+	suspendedReadyProcessesTreeView   *process.ProcessTreeView
+	finishedProcessesTreeView         *process.ProcessTreeView
+	// Transitions
+	dispatchTransitionTreeView                        *process.ProcessTreeView
+	timeoutTransitionTreeView                         *process.ProcessTreeView
+	waitEventTransitionTreeView                       *process.ProcessTreeView
+	completionEventTransitionTreeView                 *process.ProcessTreeView
+	suspendBlockedTransitionTreeView                  *process.ProcessTreeView
+	resumeSuspendedBlockedTransitionTreeView          *process.ProcessTreeView
+	completionEventSuspendedBlockedTransitionTreeView *process.ProcessTreeView
+	suspendRunningTransitionTreeView                  *process.ProcessTreeView
+	resumeSuspendedReadyTransitionTreeView            *process.ProcessTreeView
+	// This transition is not needed yet
+	//suspendReadyTransitionTreeView                  *process.ProcessTreeView
 }
 
 func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *LogProcessesNotebook {
@@ -24,40 +35,64 @@ func CreateOutputProcessesNotebook(listeners OutputProcessesNotebookListeners) *
 		Box:      CreateBox(gtk.ORIENTATION_VERTICAL, ZeroMargin),
 		Notebook: CreateNotebook(),
 
-		readyProcessesTreeView:            process.NewTreeView(),
-		dispatchedProcessesTreeView:       process.NewTreeView(),
-		processedProcessesTreeView:        process.NewTreeView(),
-		blockedProcessesTreeView:          process.NewTreeView(),
-		suspendedReadyProcessesTreeView:   process.NewTreeView(),
-		suspendedBlockedProcessesTreeView: process.NewTreeView(),
-		destroyedProcessesTreeView:        process.NewTreeView(),
-		communicationProcessesTextView:    CreateTextView(),
+		readyProcessesTreeView:                            process.NewTreeView(),
+		runningProcessesTreeView:                          process.NewTreeView(),
+		blockedProcessesTreeView:                          process.NewTreeView(),
+		suspendedBlockedProcessesTreeView:                 process.NewTreeView(),
+		suspendedReadyProcessesTreeView:                   process.NewTreeView(),
+		finishedProcessesTreeView:                         process.NewTreeView(),
+		dispatchTransitionTreeView:                        process.NewTreeView(),
+		timeoutTransitionTreeView:                         process.NewTreeView(),
+		waitEventTransitionTreeView:                       process.NewTreeView(),
+		completionEventTransitionTreeView:                 process.NewTreeView(),
+		suspendBlockedTransitionTreeView:                  process.NewTreeView(),
+		resumeSuspendedBlockedTransitionTreeView:          process.NewTreeView(),
+		completionEventSuspendedBlockedTransitionTreeView: process.NewTreeView(),
+		suspendRunningTransitionTreeView:                  process.NewTreeView(),
+		resumeSuspendedReadyTransitionTreeView:            process.NewTreeView(),
 	}
 
 	headerBar := CreateHeaderBar()
 
-	outputNotebook.Notebook.AppendPage(outputNotebook.readyProcessesTreeView.TreeView, CreateLabel("Ready"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.dispatchedProcessesTreeView.TreeView, CreateLabel("Dispatched"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.processedProcessesTreeView.TreeView, CreateLabel("Processed"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.blockedProcessesTreeView.TreeView, CreateLabel("Blocked"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.suspendedReadyProcessesTreeView.TreeView, CreateLabel("Suspended-ready"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.suspendedBlockedProcessesTreeView.TreeView, CreateLabel("Suspended-blocked"))
-	outputNotebook.Notebook.AppendPage(outputNotebook.destroyedProcessesTreeView.TreeView, CreateLabel("Destroyed"))
-    outputNotebook.Notebook.AppendPage(outputNotebook.communicationProcessesTextView, CreateLabel("Communication"))
+	// States
+	outputNotebook.Notebook.AppendPage(outputNotebook.readyProcessesTreeView.TreeView, CreateLabel("Listos"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.runningProcessesTreeView.TreeView, CreateLabel("En ejecución"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.blockedProcessesTreeView.TreeView, CreateLabel("Bloqueados"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.suspendedBlockedProcessesTreeView.TreeView, CreateLabel("Suspendido-bloqueado"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.suspendedReadyProcessesTreeView.TreeView, CreateLabel("Suspendido-listo"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.finishedProcessesTreeView.TreeView, CreateLabel("Finalizado"))
+	// Transitions
+	outputNotebook.Notebook.AppendPage(outputNotebook.dispatchTransitionTreeView.TreeView, CreateLabel("Listos a en ejecución"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.timeoutTransitionTreeView.TreeView, CreateLabel("En ejecución a listos"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.waitEventTransitionTreeView.TreeView, CreateLabel("En ejecución a bloqueados"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.completionEventTransitionTreeView.TreeView, CreateLabel("Bloqueados a listos"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.suspendBlockedTransitionTreeView.TreeView, CreateLabel("Bloqueados a suspendidos"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.resumeSuspendedBlockedTransitionTreeView.TreeView, CreateLabel("Suspendido-bloqueado a bloqueado"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.completionEventSuspendedBlockedTransitionTreeView.TreeView, CreateLabel("Suspendido-bloqueado a suspendido-listo"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.suspendRunningTransitionTreeView.TreeView, CreateLabel("En ejecución a suspendido"))
+	outputNotebook.Notebook.AppendPage(outputNotebook.resumeSuspendedReadyTransitionTreeView.TreeView, CreateLabel("Suspendido-listo a listo"))
 
-	headerBar.SetTitle("Output processes")
+	headerBar.SetTitle("Resultado de los procesos")
 	outputNotebook.Box.Add(headerBar)
 	outputNotebook.Box.PackEnd(outputNotebook.Notebook, true, true, 0)
 
 	return &outputNotebook
 }
 
-func (o *LogProcessesNotebook) ResetTextViews() {
+func (o *LogProcessesNotebook) ResetTreeViews() {
 	o.readyProcessesTreeView.Clear()
-	o.dispatchedProcessesTreeView.Clear()
-	o.processedProcessesTreeView.Clear()
-	o.blockedProcessesTreeView.Clear()
-	o.suspendedReadyProcessesTreeView.Clear()
-	o.suspendedBlockedProcessesTreeView.Clear()
-	o.destroyedProcessesTreeView.Clear()
+    o.runningProcessesTreeView.Clear()
+    o.blockedProcessesTreeView.Clear()
+    o.suspendedBlockedProcessesTreeView.Clear()
+    o.suspendedReadyProcessesTreeView.Clear()
+    o.finishedProcessesTreeView.Clear()
+    o.dispatchTransitionTreeView.Clear()
+    o.timeoutTransitionTreeView.Clear()
+    o.waitEventTransitionTreeView.Clear()
+    o.completionEventTransitionTreeView.Clear()
+    o.suspendBlockedTransitionTreeView.Clear()
+    o.resumeSuspendedBlockedTransitionTreeView.Clear()
+    o.completionEventSuspendedBlockedTransitionTreeView.Clear()
+    o.suspendRunningTransitionTreeView.Clear()
+    o.resumeSuspendedReadyTransitionTreeView.Clear()
 }

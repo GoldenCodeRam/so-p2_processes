@@ -23,7 +23,6 @@ type OutputProcessesNotebookListeners interface {
 
 type ProcessFrameListeners interface {
 	AddProcessButtonListener(process *object.Process)
-	OnCommunicateWithProcessChanged(processName string)
 }
 
 type MainWindow struct {
@@ -34,19 +33,14 @@ type MainWindow struct {
 
 func (m *MainWindow) AddToReadyProcessesList(process *object.Process) {
 	m.OutputProcessesNotebook.readyProcessesTreeView.AddRow(process)
-	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.AppendText(process.Name)
 }
 
 func (m *MainWindow) RemoveFromReadyProcessesList(process *object.Process) {
 	m.OutputProcessesNotebook.readyProcessesTreeView.RemoveRow(process)
 }
 
-func (m *MainWindow) AddToDispatchedProcessesList(process *object.Process) {
-	m.OutputProcessesNotebook.dispatchedProcessesTreeView.AddRow(process)
-}
-
-func (m *MainWindow) AddToProcessedProcessesList(process *object.Process) {
-	m.OutputProcessesNotebook.processedProcessesTreeView.AddRow(process)
+func (m *MainWindow) AddToRunningProcessesList(process *object.Process) {
+	m.OutputProcessesNotebook.runningProcessesTreeView.AddRow(process)
 }
 
 func (m *MainWindow) AddToBlockedProcessesList(process *object.Process) {
@@ -61,16 +55,48 @@ func (m *MainWindow) AddToSuspendedBlockedProcessesList(process *object.Process)
 	m.OutputProcessesNotebook.suspendedBlockedProcessesTreeView.AddRow(process)
 }
 
-func (m *MainWindow) AddToDestroyedProcessesList(process *object.Process) {
-	m.OutputProcessesNotebook.destroyedProcessesTreeView.AddRow(process)
+func (m *MainWindow) AddToFinishedProcessesList(process *object.Process) {
+	m.OutputProcessesNotebook.finishedProcessesTreeView.AddRow(process)
+}
+
+func (m *MainWindow) AddToDispatchTransitionList(process *object.Process) {
+    m.OutputProcessesNotebook.dispatchTransitionTreeView.AddRow(process)
+}
+
+func (m *MainWindow) AddToTimeoutTransitionList(process *object.Process) {
+    m.OutputProcessesNotebook.timeoutTransitionTreeView.AddRow(process)
+}
+
+func (m *MainWindow) AddToWaitEventTransitionList(process *object.Process) {
+    m.OutputProcessesNotebook.waitEventTransitionTreeView.AddRow(process)
+}
+
+func (m *MainWindow) AddToCompletionEventTransitionList(process *object.Process) {
+    m.OutputProcessesNotebook.completionEventTransitionTreeView.AddRow(process)
+}
+
+func (m *MainWindow) AddToSuspendBlockedTransitionList(process *object.Process) {
+    m.OutputProcessesNotebook.suspendBlockedTransitionTreeView.AddRow(process)
+}
+
+func (m *MainWindow) AddToResumeSuspendedBlockedTransitionList(process *object.Process) {
+    m.OutputProcessesNotebook.resumeSuspendedBlockedTransitionTreeView.AddRow(process)
+}
+
+func (m *MainWindow) AddToCompletionEventSuspendedBlockedTransitionList(process *object.Process) {
+    m.OutputProcessesNotebook.completionEventSuspendedBlockedTransitionTreeView.AddRow(process)
+}
+
+func (m *MainWindow) AddToSuspendRunningTransitionList(process *object.Process) {
+    m.OutputProcessesNotebook.suspendRunningTransitionTreeView.AddRow(process)
+}
+
+func (m *MainWindow) AddToResumeSuspendedReadyTransitionList(process *object.Process) {
+    m.OutputProcessesNotebook.resumeSuspendedReadyTransitionTreeView.AddRow(process)
 }
 
 func (m *MainWindow) ResetLogs() {
-	m.OutputProcessesNotebook.ResetTextViews()
-	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.RemoveAll()
-	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.AppendText("None")
-	m.ProcessActionPanel.CreateProcessFrame.ProcessCommunicationComboText.SetActive(0)
-	m.OutputProcessesNotebook.communicationProcessesTextView.SetBuffer(CreateTextBuffer(""))
+	m.OutputProcessesNotebook.ResetTreeViews()
 }
 
 func CreateMainWindow(listeners MainWindowListeners) *MainWindow {

@@ -73,6 +73,7 @@ func (p *Processor) MakeTick(listeners ProcessorLogListeners) {
 		nextProcess, err := p.GetNextProcess()
 		if err != nil {
 			listeners.LogFinishedProcessing()
+            return
 		} else {
 			p.CurrentProcess = nextProcess
 		}

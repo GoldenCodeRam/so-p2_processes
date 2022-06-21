@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"sync"
 
 	"github.com/goldencoderam/so-p2_processes/src/model"
@@ -34,61 +33,67 @@ func GetViewControllerInstance() *viewController {
 	return viewControllerInstance
 }
 
-func (v *viewController) DispatchProcess(process *object.Process) {
-	v.MainWindow.RemoveFromReadyProcessesList(process)
-	v.MainWindow.AddToDispatchedProcessesList(process)
+func (v *viewController) LogProcessDispatched(process *object.Process) {
+    v.MainWindow.AddToDispatchTransitionList(process)
+    v.MainWindow.AddToRunningProcessesList(process)
+    v.MainWindow.RemoveFromReadyProcessesList(process)
 }
 
-func (v *viewController) Timeout(process *object.Process) {
-	v.MainWindow.AddToReadyProcessesList(process)
+func (v *viewController) LogProcessTimeout(process *object.Process) {
+    v.MainWindow.AddToTimeoutTransitionList(process)
+    v.MainWindow.AddToReadyProcessesList(process)
 }
 
-func (v *viewController) FinishedProcess(process *object.Process) {
-	v.MainWindow.AddToProcessedProcessesList(process)
+func (v *viewController) LogProcessBlocked(process *object.Process) {
+    v.MainWindow.AddToWaitEventTransitionList(process)
+    v.MainWindow.AddToBlockedProcessesList(process)
 }
 
-func (v *viewController) BlockedProcess(process *object.Process) {
-	v.MainWindow.AddToBlockedProcessesList(process)
+func (v *viewController) LogProcessSuspendedRunning(process *object.Process) {
+    v.MainWindow.AddToSuspendRunningTransitionList(process)
+    v.MainWindow.AddToSuspendedReadyProcessesList(process)
 }
 
-func (v *viewController) SuspendedReadyProcess(process *object.Process) {
-	v.MainWindow.RemoveFromReadyProcessesList(process)
-	v.MainWindow.AddToSuspendedReadyProcessesList(process)
+func (v *viewController) LogProcessFinished(process *object.Process) {
+    v.MainWindow.AddToFinishedProcessesList(process)
 }
 
-func (v *viewController) SuspendedBlockedProcess(process *object.Process) {
-	v.MainWindow.AddToSuspendedBlockedProcessesList(process)
+func (v *viewController) LogProcessIOBlockedCompleted(process *object.Process) {
+    v.MainWindow.AddToCompletionEventTransitionList(process)
+    v.MainWindow.AddToReadyProcessesList(process)
 }
 
-func (v *viewController) DestroyedProcess(process *object.Process) {
-	v.MainWindow.AddToDestroyedProcessesList(process)
+func (v *viewController) LogProcessSuspendedBlocked(process *object.Process) {
+    v.MainWindow.AddToSuspendBlockedTransitionList(process)
+    v.MainWindow.AddToSuspendedBlockedProcessesList(process)
 }
 
-func (v *viewController) FinishedProcessing() {
-	// TODO: This should be done soon
-	log.Default().Println("Finished")
-	view.ShowInfoDialog("Finished")
+func (v *viewController) LogProcessSuspendedBlockedResumed(process *object.Process) {
+    v.MainWindow.AddToResumeSuspendedBlockedTransitionList(process)
+    v.MainWindow.AddToBlockedProcessesList(process)
 }
 
-func (v *viewController) CommunicateWithProcess(process *object.Process) {
-	if process.CommunicateWith != "" && process.CommunicateWith != "None" && process.CommunicateWith != process.Name {
-		for _, element := range GetMainControllerInstance().Processor.ReadyProcessesList {
-			if element.State == object.READY && element.Name == process.CommunicateWith {
-				v.MainWindow.LogCommunication(process.Name + " communicated with " + process.CommunicateWith)
-			}
-		}
-	}
-	process.CommunicateWith = "None"
+func (v *viewController) LogProcessIOSuspendedBlockedCompleted(process *object.Process) {
+    v.MainWindow.AddToCompletionEventSuspendedBlockedTransitionList(process)
+    v.MainWindow.AddToSuspendedReadyProcessesList(process)
+}
+
+func (v *viewController) LogProcessSuspendedReadyResumed(process *object.Process) {
+    v.MainWindow.AddToResumeSuspendedReadyTransitionList(process)
+    v.MainWindow.AddToReadyProcessesList(process)
+}
+
+func (v *viewController) LogFinishedProcessing() {
+    view.ShowInfoDialog("Finalizado")
 }
 
 func (v *viewController) AddProcessButtonListener(process *object.Process) {
-	if GetMainControllerInstance().AddProcessToProcessor(process) {
-		v.MainWindow.AddToReadyProcessesList(process)
-	}
-}
-
-func (v *viewController) OnCommunicateWithProcessChanged(processName string) {
-	log.Default().Println(processName)
+    err := v.Processor.AddProcessToReadyList(process)
+    if err != nil {
+        view.ShowErrorDialog(err)
+    } else {
+        v.MainWindow.AddToReadyProcessesList(process)
+    }
 }
 
 func (v *viewController) StartProcessor() {

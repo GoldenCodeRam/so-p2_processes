@@ -26,20 +26,19 @@ type Process struct {
 	IsSuspendedAtBlocked      bool
 	IsSuspendedAtIOCompletion bool
 	State                     ProcessState
-
-	timeRemaining int
+	TimeRemaining int
 }
 
 func (p *Process) Process(time int) {
-	p.timeRemaining = int(math.Max(0.0, float64(p.timeRemaining-time)))
+	p.TimeRemaining = int(math.Max(0.0, float64(p.TimeRemaining-time)))
 }
 
 func (p *Process) GetTimeRemaining() int {
-    return p.timeRemaining
+    return p.TimeRemaining
 }
 
 func (p *Process) HasFinished() bool {
-	return p.timeRemaining == 0
+	return p.TimeRemaining == 0
 }
 
 func (p *Process) ToString() string {

@@ -1,9 +1,8 @@
 package main
 
-import (
-)
+import "github.com/goldencoderam/so-p2_processes/src/controller"
 
 func main() {
-    
+    controller.GetViewControllerInstance()
 }
 

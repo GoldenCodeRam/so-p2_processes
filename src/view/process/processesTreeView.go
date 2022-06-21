@@ -9,10 +9,10 @@ import (
 const (
 	PROCESS_NAME = iota
 	PROCESS_TIME
-    PROCESS_DELETED
 	PROCESS_BLOCKED
 	PROCESS_SUSPENDED_RUNNING
 	PROCESS_SUSPENDED_BLOCKED
+	PROCESS_SUSPENDED_IO_COMPLETION
 	PROCESS_TIME_REMAINING
 	PROCESS_STATUS
 )
@@ -40,6 +40,7 @@ func (p *ProcessTreeView) AddRow(process *object.Process) {
             PROCESS_BLOCKED,
             PROCESS_SUSPENDED_RUNNING,
             PROCESS_SUSPENDED_BLOCKED,
+            PROCESS_SUSPENDED_IO_COMPLETION,
             PROCESS_TIME_REMAINING,
             PROCESS_STATUS,
         },
@@ -49,6 +50,7 @@ func (p *ProcessTreeView) AddRow(process *object.Process) {
             process.IsBlocked,
             process.IsSuspendedAtRunning,
             process.IsSuspendedAtBlocked,
+            process.IsSuspendedAtIOCompletion,
             process.GetTimeRemaining(),
             process.State,
         },
@@ -74,17 +76,19 @@ func (p *ProcessTreeView) RemoveRow(process *object.Process) {
 func setupTreeView() (*gtk.TreeView, *gtk.ListStore) {
 	treeView, _ := gtk.TreeViewNew()
 
-	treeView.AppendColumn(createColumn("Name", PROCESS_NAME))
-	treeView.AppendColumn(createColumn("Time", PROCESS_TIME))
-	treeView.AppendColumn(createColumn("Blocked", PROCESS_BLOCKED))
-	treeView.AppendColumn(createColumn("Suspended at running", PROCESS_SUSPENDED_RUNNING))
-	treeView.AppendColumn(createColumn("Suspended at blocked", PROCESS_SUSPENDED_BLOCKED))
-	treeView.AppendColumn(createColumn("Time remaining", PROCESS_TIME_REMAINING))
-	treeView.AppendColumn(createColumn("Status", PROCESS_STATUS))
+	treeView.AppendColumn(createColumn("Nombre", PROCESS_NAME))
+	treeView.AppendColumn(createColumn("Tiempo", PROCESS_TIME))
+	treeView.AppendColumn(createColumn("¿Se bloquea?", PROCESS_BLOCKED))
+	treeView.AppendColumn(createColumn("¿Se suspende en ejecución?", PROCESS_SUSPENDED_RUNNING))
+	treeView.AppendColumn(createColumn("¿Se suspende bloqueado?", PROCESS_SUSPENDED_BLOCKED))
+	treeView.AppendColumn(createColumn("¿Se desbloquea suspendido?", PROCESS_SUSPENDED_IO_COMPLETION))
+	treeView.AppendColumn(createColumn("Tiempo restante", PROCESS_TIME_REMAINING))
+	treeView.AppendColumn(createColumn("Estado", PROCESS_STATUS))
 
 	listStore, _ := gtk.ListStoreNew(
         glib.TYPE_STRING,
         glib.TYPE_INT,
+        glib.TYPE_BOOLEAN,
         glib.TYPE_BOOLEAN,
         glib.TYPE_BOOLEAN,
         glib.TYPE_BOOLEAN,
