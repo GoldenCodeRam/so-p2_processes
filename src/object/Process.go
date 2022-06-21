@@ -14,7 +14,7 @@ const (
     // When it was suspended already
     BLOCKED_NOT_SUSPENDED
 	SUSPENDED_BLOCKED
-	SUSPENDED_READY
+	SUSPENDED_RUNNING
 	FINISHED
 )
 
@@ -32,6 +32,10 @@ type Process struct {
 
 func (p *Process) Process(time int) {
 	p.timeRemaining = int(math.Max(0.0, float64(p.timeRemaining-time)))
+}
+
+func (p *Process) GetTimeRemaining() int {
+    return p.timeRemaining
 }
 
 func (p *Process) HasFinished() bool {

@@ -94,7 +94,7 @@ func (p *Processor) MakeTick(listeners ProcessorLogListeners) {
 	case object.SUSPENDED_BLOCKED:
         p.makeProcessSuspendedBlockedTransition()
 		break
-	case object.SUSPENDED_READY:
+	case object.SUSPENDED_RUNNING:
         p.makeProcessSuspendedReadyTransition()
 		break
 	case object.FINISHED:
@@ -119,7 +119,7 @@ func (p *Processor) makeProcessRunningTransition() {
 		p.CurrentProcess.State = object.BLOCKED
 		p.LogListeners.LogProcessBlocked(p.CurrentProcess)
 	} else if p.CurrentProcess.IsSuspendedAtRunning {
-		p.CurrentProcess.State = object.SUSPENDED_READY
+		p.CurrentProcess.State = object.SUSPENDED_RUNNING
 		p.LogListeners.LogProcessSuspendedRunning(p.CurrentProcess)
 	} else {
 		p.CurrentProcess.State = object.READY
@@ -150,7 +150,7 @@ func (p *Processor) makeProcessBlockedNotSuspendedTransition() {
 
 func (p *Processor) makeProcessSuspendedBlockedTransition() {
     if p.CurrentProcess.IsSuspendedAtIOCompletion {
-        p.CurrentProcess.State = object.SUSPENDED_READY
+        p.CurrentProcess.State = object.SUSPENDED_RUNNING
         p.LogListeners.LogProcessIOSuspendedBlockedCompleted(p.CurrentProcess)
     } else {
         p.CurrentProcess.State = object.BLOCKED_NOT_SUSPENDED

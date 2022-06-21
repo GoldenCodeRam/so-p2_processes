@@ -29,8 +29,6 @@ func CreateProcessFrame(label string, listeners ProcessFrameListeners) *ProcessF
 	box := CreateBox(gtk.ORIENTATION_HORIZONTAL, SmallMargin)
 	grid := CreateGrid()
 
-	processPriorityLabel := CreateLabel("Priority")
-	processChangePriorityLabel := CreateLabel("Change priority")
 	processNameLabel := CreateLabel("Name")
 	processTimeLabel := CreateLabel("Time")
 
@@ -59,8 +57,6 @@ func CreateProcessFrame(label string, listeners ProcessFrameListeners) *ProcessF
 
 	return &processFrame
 } 
-
-func
 
 func (p *ProcessFrame) addProcess(listeners ProcessFrameListeners) {
 	name, err := extractTextFromEntry(p.ProcessNameEntry)
